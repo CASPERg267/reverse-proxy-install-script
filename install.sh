@@ -1,45 +1,27 @@
 #!/bin/bash
+#
+# Nginx Proxy Manager Install Script | Copyright 2020, Christian Clark
+#
 
-if [ "$EUID" -ne 0 ]
-  then echo "This script must be run as root"
-  exit
-fi
+echo "This command is designed to be run on a fresh system. If it is not, turn back and reinstall or redeploy this instance."
 
-read -p "Enter the desired port number (default: 3434): " PORT
-PORT=${PORT:-3434}
+echo "Updating aptitude cache......"; apt update
 
-read -p "Enter the email address for Let's Encrypt: " LETSENCRYPT_EMAIL
+echo "Installing Docker......"; apt install docker
 
-read -p "Enter the authorization code for accessing the reverse proxy (default: secret): " AUTHORIZATION
-AUTHORIZATION=${AUTHORIZATION:-secret}
+echo "Installing Docker Compose......"; sudo apt install docker-compose
 
-NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
-NGINX_STREAMS="/etc/nginx/streams"
-LETSENCRYPT_DIR="/var/www/html"
+echo "Installing git client......"; apt install git
 
-echo "Installing packages..."
-apt-get update && apt-get upgrade -y
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-apt-get install -y nodejs unzip certbot nginx
+echo "Cloning proxy directory......"; git clone https://raw.githubusercontent.com/CASPERg267/reverse-proxy-install-script/reverse-proxy-manager/docker-compose.yml
 
-echo "Creating directories and downloading reverse proxy..."
-mkdir -p /etc/reverseproxy
-cd /etc/reverseproxy
-curl -Lo proxy.zip https://github.com/j122j/reverseproxy/releases/latest/download/proxy.zip
-unzip -o proxy.zip
-npm install
-cp example.env .env
+echo "Changing directory......"; cd Proxy
 
-echo "Updating .env file..."
-sed -i "s/^PORT=.*/PORT=$PORT/" .env
-sed -i "s|^NGINX_SITES_ENABLED=.*|NGINX_SITES_ENABLED=$NGINX_SITES_ENABLED|" .env
-sed -i "s|^NGINX_STREAMS=.*|NGINX_STREAMS=$NGINX_STREAMS|" .env
-sed -i "s|^LETSENCRYPT_DIR=.*|LETSENCRYPT_DIR=$LETSENCRYPT_DIR|" .env
-sed -i "s/^LETSENCRYPT_EMAIL=.*/LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL/" .env
-sed -i "s/^AUTHORIZATION=.*/AUTHORIZATION=$AUTHORIZATION/" .env
+echo "Starting Proxy......"; docker-compose up -d
 
-echo "Setting up systemd service..."
-cp reverseproxy.service /etc/systemd/system/reverseproxy.service
-systemctl enable --now reverseproxy
+echo -e "Nginx Proxy Manager has successfully been installed.";
+echo "The default credentials are:";
+echo "Username/Email: admin@example.com";
+echo "Password: changeme";
 
-echo "Done!"
+exit
