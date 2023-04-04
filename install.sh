@@ -13,9 +13,9 @@ echo "Installing Docker Compose......"; sudo apt install docker-compose
 
 echo "Installing git client......"; apt install git
 
-echo "Cloning proxy directory......"; git clone https://raw.githubusercontent.com/CASPERg267/reverse-proxy-install-script/reverse-proxy-manager/docker-compose.yml
+echo "Cloning proxy directory......"; git clone https://github.com/CASPERg267/reverse-proxy-install-script/tree/reverse-proxy-manager
 
-echo "Changing directory......"; cd Proxy
+echo "Changing directory......"; cd reverse-proxy-manager
 
 echo "Starting Proxy......"; docker-compose up -d
 
